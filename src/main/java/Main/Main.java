@@ -25,11 +25,11 @@ public class Main {
 		
 		createNewTask(service, "Testing Post with Json" );		
 		
-		consumeTaskById(service, 1320);
+		//consumeTaskById(service, 545545);
 		
-		updateTask(service, 1321, "Task Updated");
+		//updateTask(service, 5458854, "Task Updated");
 		
-		deleteTaskById(service, 1324);
+		//deleteTaskById(service, 1324);
 		
 		consumeAllTasks(service);
 		
@@ -42,10 +42,14 @@ public class Main {
 		Response<Task> response = call.execute();
 		Task body = response.body();
 		
-		Gson gson = new Gson();
-		
 		System.out.println("Created [POST] : ");
-		System.out.println(gson.toJson(body));
+		Gson gson = new Gson();
+
+		if(response.code() == 422) {
+			System.out.println(response.errorBody().string());
+		} else {
+			System.out.println(gson.toJson(body));
+		}
 	}
 	
 	public static void consumeTaskById(APITarefas service, int id) throws IOException{
@@ -53,10 +57,15 @@ public class Main {
 		Response<Task> response = getTaskById.execute();
 		Task body = response.body();
 		
-		Gson gson = new Gson();
-		
 		System.out.println("\nTask [GET] : ");
-		System.out.println(gson.toJson(body));
+		Gson gson = new Gson();
+
+		if (body == null) {
+			System.out.println(response.errorBody().string());
+		} else {					
+			System.out.println(gson.toJson(body));
+		}
+		
 	}
 	
 	public static void updateTask(APITarefas service, int id, String description) throws IOException{
@@ -66,13 +75,19 @@ public class Main {
 		Call<Void> updateTaskById = service.updateTask(id, task);
 		Response<Void> response = updateTaskById.execute();
 		
-		System.out.println("\nHTTP Code [Put] : " + response.code());
+		System.out.println("\nHTTP Code [Put] : " + response.code());			
+		if(response.code() == 404 || response.code() == 422) {
+			System.out.println(response.errorBody().string());
+		}
 	}
 	
 	public static void deleteTaskById(APITarefas service, int id) throws IOException{
 		Call<Void> deleteTaskById = service.deleteTaskById(id);
 		Response<Void> response = deleteTaskById.execute();
 		System.out.println("\nHTTP Code [DELETE] : " + response.code());
+		if(response.code() == 404 || response.code() == 422) {
+			System.out.println(response.errorBody().string());
+		}
 	}
 	
 	public static void consumeAllTasks(APITarefas service) throws IOException {
